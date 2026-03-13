@@ -5,162 +5,85 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>For Jelay</title>
     <style>
-        body {
-            background-color: #050505;
-            color: #ff4d6d;
-            font-family: 'Courier New', Courier, monospace;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            margin: 0;
-            overflow-x: hidden;
-            transition: background-color 3s;
-        }
+        body { background-color: #050505; color: #ff4d6d; font-family: 'Courier New', Courier, monospace; display: flex; flex-direction: column; align-items: center; min-height: 100vh; margin: 0; overflow-x: hidden; }
+        #start-btn { padding: 15px 40px; font-size: 18px; border: 2px solid #ff4d6d; background: none; color: #ff4d6d; cursor: pointer; border-radius: 50px; z-index: 1000; margin-top: 250px; }
+        
+        .layout { display: flex; align-items: center; gap: 40px; margin-top: 50px; transition: all 2s; }
+        #heart-container { white-space: pre; line-height: 8px; font-size: 8px; text-shadow: 0 0 8px #ff4d6d; }
+        
+        .side-text { font-family: 'Segoe UI', sans-serif; font-size: 16px; color: #fce4ec; opacity: 0; transition: opacity 1s; width: 250px; text-align: center; }
+        .show { opacity: 1; }
 
-        #start-btn {
-            padding: 15px 40px;
-            font-size: 18px;
-            background: none;
-            color: #ff4d6d;
-            border: 2px solid #ff4d6d;
-            cursor: pointer;
-            border-radius: 50px;
-            z-index: 1000;
-            letter-spacing: 2px;
-            box-shadow: 0 0 15px rgba(255, 77, 109, 0.3);
-        }
-
-        .layout {
-            display: flex;
-            flex-direction: row; /* Default for Desktop/Landscape */
-            align-items: center;
-            gap: 20px;
-            margin-top: 20px;
-            padding: 20px;
-        }
-
-        /* Mobile Fix: Stacks vertically if the phone is held upright */
-        @media (max-width: 768px) and (orientation: portrait) {
-            .layout { flex-direction: column; }
-            #heart-container { font-size: 6px !important; line-height: 6px !important; }
-            .messages { width: 90% !important; text-align: center; }
-        }
-
-        #heart-container {
-            white-space: pre;
-            line-height: 8px;
-            font-size: 8px;
-            text-shadow: 0 0 8px #ff4d6d;
-        }
-
-        .messages {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            width: 280px;
-        }
-
-        .side-text {
-            font-family: 'Segoe UI', sans-serif;
-            font-size: 14px;
-            color: #fce4ec;
-            opacity: 0;
-            transition: all 1s ease;
-            font-style: italic;
-        }
-
-        .show { opacity: 1; transform: translateY(0); }
-        .hide { opacity: 0; transform: translateY(-10px); display: none; }
-
+        /* The Long Message Box - Sits under the heart */
+        #long-message-box { width: 80%; max-width: 600px; margin-top: 30px; text-align: center; color: #ff85a1; font-size: 18px; opacity: 0; transition: opacity 3s; }
+        
         .beating { animation: heartbeat 1.5s infinite ease-in-out; }
-        @keyframes heartbeat {
-            0%, 100% { transform: scale(1); }
-            50% { transform: scale(1.04); }
-        }
+        @keyframes heartbeat { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
     </style>
 </head>
 <body>
 
     <button id="start-btn" onclick="startApp()">START OUR STORY ❤️</button>
 
-    <div class="layout">
-        <div class="messages" id="left-side">
-            <div class="side-text" id="m1">"I know i have done alot that is bad and i am truly sorry"</div>
-            <div class="side-text" id="m2">"Now i am willing to learn every language of code just to say sorry in every language of code"</div>
-        </div>
-
+    <div class="layout" id="main-layout">
+        <div class="side-text" id="m1"></div>
         <div id="heart-container"></div>
-
-        <div class="messages" id="right-side">
-            <div class="side-text" id="m3">"You are my love of my life i wont let it waste it again my jelay"</div>
-            <div class="side-text" id="m4">"Please let me prove my self again this time po ah :<"</div>
-        </div>
+        <div class="side-text" id="m2"></div>
     </div>
 
-    <audio id="myAudio">
-        <source src="music.mp3" type="audio/mpeg">
-        <source src="music.mp3.mp3" type="audio/mpeg">
-    </audio>
+    <div id="long-message-box"></div>
+
+    <audio id="myAudio"><source src="music.mp3" type="audio/mpeg"></audio>
 
     <script>
-        const audio = document.getElementById('myAudio');
         const heart = document.getElementById('heart-container');
-        const btn = document.getElementById('start-btn');
-        const text = "I LOVE YOU ";
-        let heartString = "";
+        const m1 = document.getElementById('m1');
+        const m2 = document.getElementById('m2');
+        const longMessageBox = document.getElementById('long-message-box');
 
-        // Generate Heart
-        let charIndex = 0;
-        for (let y = 15; y > -15; y--) {
-            for (let x = -30; x < 30; x++) {
-                const f = Math.pow((x * 0.05)**2 + (y * 0.1)**2 - 1, 3) - (x * 0.05)**2 * (y * 0.1)**3;
-                if (f <= 0) {
-                    heartString += text[charIndex % text.length];
-                    charIndex++;
-                } else {
-                    heartString += " ";
+        const messages = [
+            ["I know i have done alot that is bad and i am truly sorry", "Now i am willing to learn every language of code"],
+            ["You are my love of my life", "I wont let it waste it again my jelay"],
+            ["I am willing to wait and suffer just to show that i am sorry", "Sorry for everything my jelay"],
+            ["I promise i will be more gentle to you this time po", "i love you sm my jelay!!"]
+        ];
+
+        function getHeart(text) {
+            let str = ""; let charIndex = 0;
+            for (let y = 15; y > -15; y--) {
+                for (let x = -30; x < 30; x++) {
+                    const f = Math.pow((x * 0.05)**2 + (y * 0.1)**2 - 1, 3) - (x * 0.05)**2 * (y * 0.1)**3;
+                    if (f <= 0) { str += text[charIndex % text.length]; charIndex++; } else { str += " "; }
                 }
+                str += "\n";
             }
-            heartString += "\n";
+            return str;
         }
 
-        function startApp() {
-            btn.style.display = 'none';
-            audio.play();
-            let i = 0;
-            function type() {
-                if (i < heartString.length) {
-                    heart.innerHTML += heartString.charAt(i);
-                    i++;
-                    setTimeout(type, 1);
-                } else { heart.classList.add('beating'); }
-            }
-            type();
-        }
-
-        audio.ontimeupdate = function() {
-            // 19-Second Mark
-            if (audio.currentTime >= 19 && audio.currentTime < 30) {
-                document.getElementById('m1').classList.add('show');
-                document.getElementById('m2').classList.add('show');
-                document.getElementById('m3').classList.add('show');
-                document.getElementById('m4').classList.add('show');
-            }
+        async function startApp() {
+            document.getElementById('start-btn').style.display = 'none';
+            document.getElementById('myAudio').play();
             
-            // 30-Second Mark: Change the text
-            if (audio.currentTime >= 30) {
-                document.getElementById('m1').innerText = "I am willing to wait and suffer just to show that i am sorry";
-                document.getElementById('m2').innerText = "Sorry for everything my jelay";
-                document.getElementById('m3').innerText = "I promise i will be more gentle to you this time po";
-                document.getElementById('m4').innerText = "i love you sm my jelay!!";
-                
-                // Add a little extra glow to the heart at 30s
-                heart.style.textShadow = "0 0 20px #ff4d6d, 0 0 40px #ff4d6d";
-                document.body.style.backgroundColor = "#1a0508"; 
+            let fullHeart = getHeart("I LOVE YOU MY JELAY ");
+            for(let char of fullHeart) { heart.innerText += char; await new Promise(r => setTimeout(r, 0.5)); }
+            heart.classList.add('beating');
+
+            for(let batch of messages) {
+                m1.innerText = batch[0]; m2.innerText = batch[1];
+                m1.classList.add('show'); m2.classList.add('show');
+                await new Promise(r => setTimeout(r, 4000));
+                m1.classList.remove('show'); m2.classList.remove('show');
+                await new Promise(r => setTimeout(r, 500));
             }
-        };
+
+            // Rebuild
+            heart.innerText = "";
+            for(let char of fullHeart) { heart.innerText += char; await new Promise(r => setTimeout(r, 0.5)); }
+            
+            // Show Long Message under the heart
+            longMessageBox.style.opacity = 1;
+            longMessageBox.innerText = "I misss you smm my jelay just let me prove myself once again, my love for you is geniune as the day we met and the day we became official, always i miss when i joke na mabubungo ako when you dont say any ingat to me when ihahatid kita everytime sa sakayan po, i miss max, i miss bruno too, and my mama misses you everytime nadinadala kita dito, you always make me smile and i truly know eversince we became official i know you are the one my love my jelay :<";
+        }
     </script>
 </body>
 </html>
